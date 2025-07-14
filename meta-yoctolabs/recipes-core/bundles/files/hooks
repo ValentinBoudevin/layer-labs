@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "/dev/mmcblk0p1 /uboot  vfat    defaults        0       0" >> $RAUC_SLOT_MOUNT_POINT/etc/fstab
+echo "/dev/mmcblk0p4 /data   ext4    defaults       0     0" >> $RAUC_SLOT_MOUNT_POINT/etc/fstab

@@ -1,0 +1,8 @@
+# short-description: Create SD card image with 2 partitions
+# long-description: Creates a partitioned SD card image for TI platforms.
+# Boot files are located in the first vfat partition with extra reserved space.
+
+part /uboot --source bootimg-partition --fstype=vfat --label boot --active --align 1024 --fixed-size 128M --no-fstab-update
+part / --source rootfs --fstype=ext4 --label rootfs_a --align 1024 --use-uuid
+part / --source rootfs --fstype=ext4 --label rootfs_b --align 1024 --use-uuid
+part /data --fstype=ext4 --label appfs_a --fixed-size 512M --no-fstab-update

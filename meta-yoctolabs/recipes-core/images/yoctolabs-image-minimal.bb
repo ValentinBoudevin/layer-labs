@@ -13,3 +13,7 @@ inherit core-image
 #   usermod -p '\$5\$5BZ7az6OjH0gzg45\$xqpE/rCdapovy0J6N1eSlTdAfsR2Cd5IZlr/ZXVTgv/' root; \
 # "
 
+IMAGE_INSTALL:append = " u-boot-fw-utils"
+IMAGE_INSTALL:append = " rauc"
+IMAGE_INSTALL:append = " e2fsprogs-mke2fs"
+IMAGE_INSTALL:append = " casync"

@@ -1,0 +1,72 @@
+From 1102562dd1a02cc298f3eb9ba253114eca02add2 Mon Sep 17 00:00:00 2001
+From: Votre Nom <Vous@exemple.com>
+Date: Mon, 14 Jul 2025 16:26:07 -0400
+Subject: [PATCH] custom uboot commmands for RAUC
+
+---
+ include/configs/am335x_evm.h | 42 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 41 insertions(+), 1 deletion(-)
+
+diff --git a/include/configs/am335x_evm.h b/include/configs/am335x_evm.h
+index 5b477785174..20f125df048 100644
+--- a/include/configs/am335x_evm.h
++++ b/include/configs/am335x_evm.h
+@@ -23,6 +23,45 @@
+ #define V_OSCK				24000000  /* Clock output from T2 */
+ #define V_SCLK				(V_OSCK)
+ 
++#define RAUC_BOOTARGS \
++	"rauc_init_var=" \
++		"test -n ${BOOT_ORDER} || setenv BOOT_ORDER A B;" \
++		"test -n ${BOOT_A_LEFT} || setenv BOOT_A_LEFT 3;" \
++		"test -n ${BOOT_B_LEFT} || setenv BOOT_B_LEFT 3\0" \
++	"rauc_select_slot=" \
++		"setenv bootargs; " \
++		"for BOOT_SLOT in ${BOOT_ORDER}; do " \
++			"if test -n ${bootargs}; then " \
++				"true; " \
++			"elif test ${BOOT_SLOT} = A && test 0x${BOOT_A_LEFT} -gt 0; then " \
++				"echo Found valid slot A, ${BOOT_A_LEFT} attempts remaining; " \
++				"setexpr BOOT_A_LEFT ${BOOT_A_LEFT} - 1; " \
++				"load mmc 0:2 ${kernel_addr_r} /boot/zImage; " \
++				"load mmc 0:2 ${fdt_addr_r} /boot/dtb/am335x-boneblack.dtb; " \
++				"setenv bootargs console=ttyS0,115200n8 root=/dev/mmcblk0p2 rootwait rauc.slot=A; " \
++			"elif test ${BOOT_SLOT} = B && test 0x${BOOT_B_LEFT} -gt 0; then " \
++				"echo Found valid slot B, ${BOOT_B_LEFT} attempts remaining; " \
++				"setexpr BOOT_B_LEFT ${BOOT_B_LEFT} - 1; " \
++				"load mmc 0:3 ${kernel_addr_r} /boot/zImage; " \
++				"load mmc 0:3 ${fdt_addr_r} /boot/dtb/am335x-boneblack.dtb; " \
++				"setenv bootargs console=ttyS0,115200n8 root=/dev/mmcblk0p3 rootwait rauc.slot=B; " \
++			"fi; " \
++		"done; " \
++		"if test -n ${bootargs}; then " \
++			"saveenv; " \
++		"else " \
++			"echo No valid slot found, resetting tries to 3; " \
++			"setenv BOOT_A_LEFT 3; " \
++			"setenv BOOT_B_LEFT 3; " \
++			"saveenv; " \
++			"reset; " \
++		"fi\0" \
++	"bootcmd_rauc=" \
++		"run rauc_init_var;" \
++		"run rauc_select_slot; " \
++		"bootz ${kernel_addr_r} - ${fdt_addr_r}\0" \
++	"bootcmd=run bootcmd_rauc;\0" 
++
+ #ifdef CONFIG_MTD_RAW_NAND
+ #define NANDARGS \
+ 	"nandargs=setenv bootargs console=${console} " \
+@@ -154,7 +193,8 @@
+ 	NANDARGS \
+ 	NETARGS \
+ 	DFUARGS \
+-	BOOTENV
++	BOOTENV \
++	RAUC_BOOTARGS
+ #endif
+ 
+ /* NS16550 Configuration */
+-- 
+2.43.0
+
