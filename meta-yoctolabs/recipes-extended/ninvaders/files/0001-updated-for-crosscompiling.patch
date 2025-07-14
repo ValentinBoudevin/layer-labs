@@ -1,0 +1,23 @@
+From 32ff09dea6f54b719d7ef0a470597d1540a2f292 Mon Sep 17 00:00:00 2001
+From: Votre Nom <Vous@exemple.com>
+Date: Wed, 18 Jun 2025 12:48:30 -0400
+Subject: [PATCH] updated for crosscompiling
+
+---
+ Makefile | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index d815e2f..f49d243 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,5 +1,4 @@
+-CC=gcc
+-CFLAGS=-O3 -Wall
++CFLAGS=-fcommon -O3 -Wall
+ LIBS=-lncurses
+ 
+ CFILES=globals.c view.c aliens.c ufo.c player.c nInvaders.c
+-- 
+2.43.0
+
